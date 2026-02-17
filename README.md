@@ -61,7 +61,7 @@ We use the **Online Shoppers Purchasing Intention Dataset**, which contains deta
    - Identify trends and correlations with purchase behavior  
 
 3. **Modeling** 🤖  
-   - Classification models (e.g., Logistic Regression, Random Forest, XGBoost)  
+   - Classification models
    - Model evaluation with accuracy, precision, recall, F1-score  
 
 4. **Deployment (Optional)** 🚀  
