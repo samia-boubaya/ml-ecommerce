@@ -7,12 +7,14 @@ import pandas as pd
 with open("xgb_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
-# Function to make predictions using the loaded model
+# Function to make predictions and get probability using the loaded model
 def predict(input_data):
     # Convert input data to a pandas DataFrame (same as the format used during training)
     input_df = pd.DataFrame([input_data])
-    prediction = model.predict(input_df)
-    return prediction
+    
+    # Get prediction probabilities
+    prob = model.predict_proba(input_df)  # This returns a 2D array (probabilities for each class)
+    return prob
 
 # Streamlit interface
 st.title('Online Purchasing Prediction')
@@ -57,12 +59,12 @@ def user_input_features():
     traffic_data = {f'traffic_type_{i}': 1 if selected_traffic == f'traffic_type_{i}' else 0 for i in range(1, 21)}
 
     input_data = {
-        'admin': st.sidebar.slider('Administrative pages visited', 0, 27),
-        'admin_duration': st.sidebar.slider('Administrative pages Duration (seconds)', 0, 3400),
-        'info': st.sidebar.slider('Informational pages visited', 0, 24),
-        'info_duration': st.sidebar.slider('Informational pages Duration (seconds)', 0, 2600),
-        'prod_related': st.sidebar.slider('Product Related pages visited', 0, 705),
-        'prod_related_duration': st.sidebar.slider('Product Related pages Duration (seconds)', 0, 70000),
+        'admin': st.sidebar.slider('Admin', 0, 27),
+        'admin_duration': st.sidebar.slider('Admin Duration', 0, 3400),
+        'info': st.sidebar.slider('Info', 0, 24),
+        'info_duration': st.sidebar.slider('Info Duration', 0, 2600),
+        'prod_related': st.sidebar.slider('Product Related', 0, 705),
+        'prod_related_duration': st.sidebar.slider('Product Related Duration', 0, 70000),
         'bounce_rate': st.sidebar.slider('Bounce Rate', 0.0, 0.2, 0.01),
         'exit_rate': st.sidebar.slider('Exit Rate', 0.0, 0.2, 0.01),
         'page_value': st.sidebar.slider('Page Value', 0, 362),
@@ -82,11 +84,11 @@ def user_input_features():
 user_input = user_input_features()
 
 # Prediction
-prediction = predict(user_input)
+prediction_prob = predict(user_input)
 
 # Display prediction
 st.subheader('Prediction')
-if prediction[0] == 1:
-    st.write("The prediction is: Purchase Made!")
+if prediction_prob[0][1] > 0.5:
+    st.write(f"The prediction is: Purchase Made! ({prediction_prob[0][1]*100:.2f}% probability)")
 else:
-    st.write("The prediction is: No Purchase Made.")
+    st.write(f"The prediction is: No Purchase Made. ({(1 - prediction_prob[0][1])*100:.2f}% probability)")
